@@ -21,7 +21,7 @@ Binding via {PluginSettings Plugin=SSHelper, Path=XXX}
 
 ## 🔧 Requirements
 
-- [SuccessStory Plugin]([https://playnite.link/extensions.html](https://playnite.link/addons.html#playnite-successstory-plugin))
+- [SuccessStory Plugin]([https://playnite.link/addons.html#playnite-successstory-plugin])
 
 ---
 
