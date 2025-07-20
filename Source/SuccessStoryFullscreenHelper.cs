@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Xml.Linq;
 
 namespace SuccessStoryFullscreenHelper
 {
@@ -82,6 +83,7 @@ namespace SuccessStoryFullscreenHelper
             int gs90 = 0;
             int gsPlat = 0;
             int fileCount = 0;
+            var platinumGames = new List<string>();
 
 
             foreach (var file in Directory.EnumerateFiles(dataPath, "*.json", SearchOption.TopDirectoryOnly))
@@ -92,36 +94,66 @@ namespace SuccessStoryFullscreenHelper
                     string content = File.ReadAllText(file);
                     dynamic json = Serialization.FromJson<dynamic>(content);
 
-                    if (json.Items != null)
+                    if (json.Items != null && json.Items.Count > 0)
                     {
                         bool allUnlocked = true;
 
                         foreach (var item in json.Items)
                         {
-                            if (item["DateUnlocked"] == null)
+                            if (item["DateUnlocked"] == null || item["DateUnlocked"].ToString() == "0001-01-01T07:00:00Z" || item["DateUnlocked"].ToString() == "0001-01-01T00:00:00Z")
                             {
                                 allUnlocked = false;
                                 break;
                             }
                         }
 
-                        if (allUnlocked && json.Items.Count > 0)
+                        if (allUnlocked)
                         {
                             gsPlat++;
+                            string gameName = json["Name"]?.ToString() ?? "Unknown Game";
+                            platinumGames.Add(gameName);
                         }
+
+                        string platformName = json.SourcesLink?.Name?.ToString() ?? "";
+
+                        var retroPlatforms = new HashSet<string>
+                        {
+                            "RetroAchievements"
+                        };
+
+                        var standardPlatforms = new HashSet<string>
+                        {
+                            "Steam",
+                            "Exophase",
+                            "Xbox",
+                            "GOG",
+                            "Epic"
+                        };
 
                         foreach (var item in json.Items)
                         {
-                            if (item["DateUnlocked"] != null)
+                            if (item["DateUnlocked"] != null && item["DateUnlocked"].ToString() != "0001-01-01T07:00:00Z")
                             {
                                 double score = (double)item["GamerScore"];
 
-                                if (score == 15.0)
-                                    gs15++;
-                                else if (score == 30.0)
-                                    gs30++;
-                                else if (score == 90.0 || score == 180.0)
-                                    gs90++;
+                                if (retroPlatforms.Contains(platformName))
+                                {
+                                    if (score >= 1 && score <= 9)
+                                        gs15++;
+                                    else if (score >= 10 && score <= 19)
+                                        gs30++;
+                                    else if (score >= 20 && score <= 25)
+                                        gs90++;
+                                }
+                                else if (standardPlatforms.Contains(platformName))
+                                {
+                                    if (score == 15.0)
+                                        gs15++;
+                                    else if (score == 30.0)
+                                        gs30++;
+                                    else if (score == 90.0 || score == 180.0)
+                                        gs90++;
+                                }
                             }
                         }
                     }
@@ -135,7 +167,7 @@ namespace SuccessStoryFullscreenHelper
             int score15 = gs15 * 15;
             int score30 = gs30 * 30;
             int score90 = gs90 * 90;
-            int scorePlat = gsPlat * 180;
+            int scorePlat = gsPlat * 300;
             int combinedScore = score15 + score30 + score90 + scorePlat ;
             int level = 0;
             int rangeMin = 0;
@@ -157,26 +189,32 @@ namespace SuccessStoryFullscreenHelper
 
             string rank;
 
-            if (level <= 4)
+            if (level <= 3)
                 rank = "Bronze1";
-            else if (level <= 9)
+            else if (level <= 6)
                 rank = "Bronze2";
-            else if (level <= 14)
+            else if (level <= 9)
                 rank = "Bronze3";
-            else if (level <= 19)
+            else if (level <= 13)
                 rank = "Silver1";
-            else if (level <= 24)
+            else if (level <= 17)
                 rank = "Silver2";
-            else if (level <= 29)
+            else if (level <= 21)
                 rank = "Silver3";
-            else if (level <= 34)
+            else if (level <= 26)
                 rank = "Gold1";
-            else if (level <= 39)
+            else if (level <= 31)
                 rank = "Gold2";
-            else if (level <= 44)
+            else if (level <= 36)
                 rank = "Gold3";
-            else
+            else if (level <= 42)
                 rank = "Plat1";
+            else if (level <= 49)
+                rank = "Plat2";
+            else if (level <= 56)
+                rank = "Plat3";
+            else
+                rank = "Plat";
 
             settings.Settings.GS15 = gs15.ToString();
             settings.Settings.GS30 = gs30.ToString();
@@ -189,6 +227,11 @@ namespace SuccessStoryFullscreenHelper
             settings.Settings.GSRank = rank.ToString();
 
             logger.Info($"SuccessStory stats loaded from {fileCount} files. Bronze: {gs15}, Silver: {gs30}, Gold: {gs90}, Platinum: {gsPlat}, Total: {total}");
+            
+            if (platinumGames.Any())
+            {
+                logger.Info($"Platinum games ({platinumGames.Count}): {string.Join(", ", platinumGames)}");
+            }
         }
 
 
