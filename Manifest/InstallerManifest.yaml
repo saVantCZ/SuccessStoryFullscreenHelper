@@ -6,3 +6,12 @@ Packages:
     PackageUrl: https://github.com/saVantCZ/SuccessStoryFullscreenHelper/releases/download/0.0.3/SuccessStoryFullscreenHelper_0_0_3.pext
     Changelog:
       - Inital Release
+  - Version: 0.0.4
+    RequiredApiVersion: 6.12.0
+    ReleaseDate: 2025-07-20
+    PackageUrl: https://github.com/saVantCZ/SuccessStoryFullscreenHelper/releases/download/0.0.4/SuccessStoryFullscreenHelper_0_0_4.pext
+    Changelog:
+      - 'Added support for RetroAchievements counting'
+      - 'RA has Gamer Score from 1 to 25, 1-9 will count as Bronze, 10-19 as Silver and 20-25 as Gold'
+      - 'Changed Gamer Score for Platinum (100% Achievements) to 300 points'
+      - 'Be aware of Exophase games with wrong platform, can report wrong Platinum status'
