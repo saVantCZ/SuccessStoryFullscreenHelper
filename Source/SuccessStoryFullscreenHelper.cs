@@ -154,6 +154,15 @@ namespace SuccessStoryFullscreenHelper
                                     else if (score == 90.0 || score == 180.0)
                                         gs90++;
                                 }
+                                else
+                                {
+                                    if (score == 15.0)
+                                        gs15++;
+                                    else if (score == 30.0)
+                                        gs30++;
+                                    else if (score == 90.0 || score == 180.0)
+                                        gs90++;
+                                }
                             }
                         }
                     }
