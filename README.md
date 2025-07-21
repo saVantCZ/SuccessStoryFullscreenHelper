@@ -1,6 +1,9 @@
 # SuccessStory Fullscreen Helper
 Simple Playnite extension which helps expose some data from SuccessStory Plugin to Fullscreen Theme
 
+## If you like my work, a coffee would be awesome!
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/MtbivzU)
+
 ## 📊 Plugin Usage in Theme
 
 Binding via {PluginSettings Plugin=SSHelper, Path=XXX}
