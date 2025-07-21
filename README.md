@@ -19,6 +19,8 @@ Binding via {PluginSettings Plugin=SSHelper, Path=XXX}
 | `GSLevel`        | Total level calculated based on GameScore                                   |
 | `GSLevelProgress`| Percent progress (0–100) toward the next GameScore level                    |
 | `GSRank`         | Rank title based on current level: `Bronze1` → `Gold3`, ending with `Plat1` |
+| `PlatinumGames`  | <List> Use as ItemSource: Outputs list of Platinum Games in Descending order|
+| `PlatinumGamesAscending`| <List> Use as ItemSource: Outputs list of Platinum Games in Ascending order|
 
 ---
 
