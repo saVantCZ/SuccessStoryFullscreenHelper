@@ -21,3 +21,11 @@ Packages:
     PackageUrl: https://github.com/saVantCZ/SuccessStoryFullscreenHelper/releases/download/0.0.5/SuccessStoryFullscreenHelper_0_0_5.pext
     Changelog:
       - 'Fixed counting logic if json file doesnt have SourcesLink.Name defined (for example Playstation Achievements)'
+  - Version: 0.0.6
+    RequiredApiVersion: 6.12.0
+    ReleaseDate: 2025-07-21
+    PackageUrl: https://github.com/saVantCZ/SuccessStoryFullscreenHelper/releases/download/0.0.6/SuccessStoryFullscreenHelper_0_0_6.pext
+    Changelog:
+      - 'Fixed Wrong Platinum count with better checking for DateTime.MinValue (Means ignore achievements with 0001-01-01 dates much better)'
+      - 'Made progressively harder to get higher Level, highest tier and badge is level 172 and up'
+      - 'Added <List>PlatinumGames for making ListView with all Platinum games in both Descending and Ascending unlocked order'
