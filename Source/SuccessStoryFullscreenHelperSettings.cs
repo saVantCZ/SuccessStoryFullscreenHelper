@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static SuccessStoryFullscreenHelper.SuccessStoryFullscreenHelper;
 
 namespace SuccessStoryFullscreenHelper
 {
@@ -20,6 +21,19 @@ namespace SuccessStoryFullscreenHelper
         private string gsLevelProgress = "0";
         private string gsRank = "Bronze1";
 
+        private List<PlatinumGame> _platinumGames = new List<PlatinumGame>();
+        public List<PlatinumGame> PlatinumGames
+        {
+            get => _platinumGames;
+            set => SetValue(ref _platinumGames, value);
+        }
+
+        private List<PlatinumGame> _platinumGamesAscending = new List<PlatinumGame>();
+        public List<PlatinumGame> PlatinumGamesAscending
+        {
+            get => _platinumGamesAscending;
+            set => SetValue(ref _platinumGamesAscending, value);
+        }
 
         public string GS15 { get => gs15; set => SetValue(ref gs15, value); }
         public string GS30 { get => gs30; set => SetValue(ref gs30, value); }

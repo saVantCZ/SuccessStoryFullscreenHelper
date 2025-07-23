@@ -37,6 +37,15 @@ namespace SuccessStoryFullscreenHelper
             });
         }
 
+
+
+        public class PlatinumGame
+        {
+            public string Name { get; set; }
+            public string CoverImagePath { get; set; }
+            public DateTime LatestUnlocked { get; set; }
+        }
+
         public override void OnGameInstalled(OnGameInstalledEventArgs args)
         {
             // Add code to be executed when game is finished installing.
@@ -83,7 +92,7 @@ namespace SuccessStoryFullscreenHelper
             int gs90 = 0;
             int gsPlat = 0;
             int fileCount = 0;
-            var platinumGames = new List<string>();
+            var platinumGamesList = new List<PlatinumGame>();
 
 
             foreach (var file in Directory.EnumerateFiles(dataPath, "*.json", SearchOption.TopDirectoryOnly))
@@ -100,7 +109,8 @@ namespace SuccessStoryFullscreenHelper
 
                         foreach (var item in json.Items)
                         {
-                            if (item["DateUnlocked"] == null || item["DateUnlocked"].ToString() == "0001-01-01T07:00:00Z" || item["DateUnlocked"].ToString() == "0001-01-01T00:00:00Z")
+                            if (item["DateUnlocked"] == null ||
+                                item["DateUnlocked"].ToString().StartsWith("0001-01-01"))
                             {
                                 allUnlocked = false;
                                 break;
@@ -109,9 +119,54 @@ namespace SuccessStoryFullscreenHelper
 
                         if (allUnlocked)
                         {
-                            gsPlat++;
                             string gameName = json["Name"]?.ToString() ?? "Unknown Game";
-                            platinumGames.Add(gameName);
+
+                            DateTime latestUnlocked = DateTime.MinValue;
+
+                            foreach (var item in json.Items)
+                            {
+                                if (item["DateUnlocked"] != null &&
+                                    !item["DateUnlocked"].ToString().StartsWith("0001-01-01"))
+                                {
+                                    if (DateTime.TryParse(item["DateUnlocked"].ToString(), out DateTime unlockedDate))
+                                    {
+                                        if (unlockedDate > latestUnlocked)
+                                        {
+                                            latestUnlocked = unlockedDate;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (latestUnlocked > DateTime.MinValue)
+                            {
+                                gsPlat++;
+                                var matchedGame = PlayniteApi.Database.Games.FirstOrDefault(g => g.Name == gameName);
+                                string coverPath = null;
+
+                                if (matchedGame != null && !string.IsNullOrEmpty(matchedGame.CoverImage))
+                                {
+                                    try
+                                    {
+                                        coverPath = PlayniteApi.Database.GetFullFilePath(matchedGame.CoverImage);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        logger.Warn($"Failed to get cover image for {gameName}: {ex.Message}");
+                                    }
+                                }
+
+                                platinumGamesList.Add(new PlatinumGame
+                                {
+                                    Name = gameName,
+                                    CoverImagePath = coverPath,
+                                    LatestUnlocked = latestUnlocked
+                                });
+                            }
+                            else
+                            {
+                                logger.Warn($"Game {gameName} has no valid LatestUnlocked date, skipping adding to platinumGamesList.");
+                            }
                         }
 
                         string platformName = json.SourcesLink?.Name?.ToString() ?? "";
@@ -132,7 +187,8 @@ namespace SuccessStoryFullscreenHelper
 
                         foreach (var item in json.Items)
                         {
-                            if (item["DateUnlocked"] != null && item["DateUnlocked"].ToString() != "0001-01-01T07:00:00Z")
+                            if (item["DateUnlocked"] != null &&
+                                !item["DateUnlocked"].ToString().StartsWith("0001-01-01"))
                             {
                                 double score = (double)item["GamerScore"];
 
@@ -200,30 +256,40 @@ namespace SuccessStoryFullscreenHelper
 
             if (level <= 3)
                 rank = "Bronze1";
-            else if (level <= 6)
+            else if (level <= 7)
                 rank = "Bronze2";
-            else if (level <= 9)
+            else if (level <= 12)
                 rank = "Bronze3";
-            else if (level <= 13)
-                rank = "Silver1";
-            else if (level <= 17)
-                rank = "Silver2";
             else if (level <= 21)
-                rank = "Silver3";
-            else if (level <= 26)
-                rank = "Gold1";
+                rank = "Silver1";
             else if (level <= 31)
+                rank = "Silver2";
+            else if (level <= 44)
+                rank = "Silver3";
+            else if (level <= 59)
+                rank = "Gold1";
+            else if (level <= 77)
                 rank = "Gold2";
-            else if (level <= 36)
+            else if (level <= 97)
                 rank = "Gold3";
-            else if (level <= 42)
+            else if (level <= 119)
                 rank = "Plat1";
-            else if (level <= 49)
+            else if (level <= 144)
                 rank = "Plat2";
-            else if (level <= 56)
+            else if (level <= 171)
                 rank = "Plat3";
             else
                 rank = "Plat";
+
+            platinumGamesList = platinumGamesList
+                .OrderByDescending(p => p.LatestUnlocked)
+                .ToList();
+
+            var platinumGamesListAscending = platinumGamesList
+                .OrderBy(p => p.LatestUnlocked)
+                .ToList();
+
+
 
             settings.Settings.GS15 = gs15.ToString();
             settings.Settings.GS30 = gs30.ToString();
@@ -234,13 +300,12 @@ namespace SuccessStoryFullscreenHelper
             settings.Settings.GSLevelProgress = progress.ToString();
             settings.Settings.GSPlat = gsPlat.ToString();
             settings.Settings.GSRank = rank.ToString();
+            settings.Settings.PlatinumGames = platinumGamesList;
+            settings.Settings.PlatinumGamesAscending = platinumGamesListAscending;
 
             logger.Info($"SuccessStory stats loaded from {fileCount} files. Bronze: {gs15}, Silver: {gs30}, Gold: {gs90}, Platinum: {gsPlat}, Total: {total}");
             
-            if (platinumGames.Any())
-            {
-                logger.Info($"Platinum games ({platinumGames.Count}): {string.Join(", ", platinumGames)}");
-            }
+            
         }
 
 
