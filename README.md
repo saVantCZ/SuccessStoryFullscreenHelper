@@ -10,9 +10,9 @@ Binding via {PluginSettings Plugin=SSHelper, Path=XXX}
 
 | Function         | Description                                                                 |
 |------------------|-----------------------------------------------------------------------------|
-| `GS15`           | Counts the number of achievements worth **15 GameScore**                    |
-| `GS30`           | Counts the number of achievements worth **30 GameScore**                    |
-| `GS90`           | Counts achievements worth **90** and **180 GameScore**                      |
+| `GS15`           | Counts the number of achievements worth **15 GameScore** (Bronze/Common Rarity) |
+| `GS30`           | Counts the number of achievements worth **30 GameScore** (Silver/Uncommon Rarity)                |
+| `GS90`           | Counts achievements worth **90** and **180 GameScore** (Gold/Rare Rarity)                 |
 | `GSPlat`         | Counts how many games have been fully completed (Platinums)                 |
 | `GSTotal`        | Total number of achievements unlocked                                       |
 | `GSScore`        | Combined GameScore of all unlocked achievements                             |
