@@ -7,6 +7,7 @@ Simple Playnite extension which helps expose some data from SuccessStory Plugin 
 ## 📊 Plugin Usage in Theme
 
 Add `<ContentControl x:Name="SSHelper_TopBarView"/>` to any Theme to show simple view:
+
 Preview in Playnite default theme:
 <img width="284" height="71" alt="image" src="https://github.com/user-attachments/assets/0a6c1eb8-0fb4-4db8-afc4-f5713532c784" />
 
