@@ -35,3 +35,11 @@ Packages:
     PackageUrl: https://github.com/saVantCZ/SuccessStoryFullscreenHelper/releases/download/0.0.7/SuccessStoryFullscreenHelper_0_0_7.pext
     Changelog:
       - 'Added ContentControl element, so you can add simple view to any theme, more info in README on GitHub page'
+  - Version: 0.0.9
+    RequiredApiVersion: 6.12.0
+    ReleaseDate: 2025-07-30
+    PackageUrl: https://github.com/saVantCZ/SuccessStoryFullscreenHelper/releases/download/0.0.9/SuccessStoryFullscreenHelper_0_0_9.pext
+    Changelog:
+      - 'Added Custom Window which can be opened with a Button to show basic Total and Per-game Achievements stats'
+      - 'Added <List>AllGamesWithAchievements to show Games with Achievements and its Stats'
+      - 'Detailed info on how to implement in theme on my GitHub README'
