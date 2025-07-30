@@ -1,0 +1,31 @@
+﻿<PluginUserControl x:Class="SuccessStoryFullscreenHelper.TopBarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SuccessStoryFullscreenHelper" >
+    <Grid Width="400" Height="100">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Image Source="Images/Platinum.png" Stretch="Uniform" Height="30" VerticalAlignment="Center"/>
+                <TextBlock Margin="10,0,0,0" Style="{DynamicResource TextBlockBaseStyle}" VerticalAlignment="Center" Text="{Binding Settings.GSPlat}"/>
+                <Image Margin="20,0,0,0" Source="Images/Gold.png" Stretch="Uniform" Height="30" VerticalAlignment="Center"/>
+                <TextBlock Margin="10,0,0,0" Style="{DynamicResource TextBlockBaseStyle}" VerticalAlignment="Center" Text="{Binding Settings.GS90}"/>
+                <Image Margin="20,0,0,0" Source="Images/Silver.png" Stretch="Uniform" Height="30" VerticalAlignment="Center"/>
+                <TextBlock Margin="10,0,0,0" Style="{DynamicResource TextBlockBaseStyle}" VerticalAlignment="Center" Text="{Binding Settings.GS30}"/>
+                <Image Margin="20,0,0,0" Source="Images/Bronze.png" Stretch="Uniform" Height="30" VerticalAlignment="Center"/>
+                <TextBlock Margin="10,0,0,0" Style="{DynamicResource TextBlockBaseStyle}" VerticalAlignment="Center" Text="{Binding Settings.GS15}"/>
+            </StackPanel>
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBlock Margin="0,0,0,0" Style="{DynamicResource TextBlockBaseStyle}" VerticalAlignment="Center" Text="Level: "/>
+                    <TextBlock Margin="10,0,0,0" Style="{DynamicResource TextBlockBaseStyle}" VerticalAlignment="Center" Text="{Binding Settings.GSLevel}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBlock Margin="0,0,0,0" Style="{DynamicResource TextBlockBaseStyle}" VerticalAlignment="Center" Text="Score: "/>
+                    <TextBlock Margin="10,0,0,0" Style="{DynamicResource TextBlockBaseStyle}" VerticalAlignment="Center" Text="{Binding Settings.GSScore}"/>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</PluginUserControl>

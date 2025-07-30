@@ -35,6 +35,21 @@ namespace SuccessStoryFullscreenHelper
             set => SetValue(ref _platinumGamesAscending, value);
         }
 
+        private List<GameAchievementsData> _allGamesWithAchievements = new List<GameAchievementsData>();
+        public List<GameAchievementsData> AllGamesWithAchievements
+        {
+            get => _allGamesWithAchievements;
+            set => SetValue(ref _allGamesWithAchievements, value);
+        }
+
+        public RelayCommand OpenAchievementWindow => new RelayCommand(() =>
+        {
+            if (SuccessStoryFullscreenHelper.Instance != null)
+            {
+                SuccessStoryFullscreenHelper.Instance.ShowAchievementsWindow(SuccessStoryFullscreenHelper.Instance.PlayniteApi);
+            }
+        });
+
         public string GS15 { get => gs15; set => SetValue(ref gs15, value); }
         public string GS30 { get => gs30; set => SetValue(ref gs30, value); }
         public string GS90 { get => gs90; set => SetValue(ref gs90, value); }

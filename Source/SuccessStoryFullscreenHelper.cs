@@ -10,7 +10,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Xml.Linq;
 
 namespace SuccessStoryFullscreenHelper
@@ -19,6 +21,7 @@ namespace SuccessStoryFullscreenHelper
     {
         private static readonly ILogger logger = LogManager.GetLogger();
 
+        public static SuccessStoryFullscreenHelper Instance { get; private set; }
         public SuccessStoryFullscreenHelperSettingsViewModel settings { get; set; }
 
         public override Guid Id { get; } = Guid.Parse("fd098238-28e4-42a8-a313-712dc2834237");
@@ -26,6 +29,7 @@ namespace SuccessStoryFullscreenHelper
         public SuccessStoryFullscreenHelper(IPlayniteAPI api) : base(api)
         {
             settings = new SuccessStoryFullscreenHelperSettingsViewModel(this);
+            Instance = this;
             Properties = new GenericPluginProperties
             {
                 HasSettings = false
@@ -34,6 +38,11 @@ namespace SuccessStoryFullscreenHelper
             {
                 SourceName = "SSHelper",
                 SettingsRoot = $"settings.Settings"
+            });
+            AddCustomElementSupport(new AddCustomElementSupportArgs
+            {
+                ElementList = new List<string> { "TopBarView" },
+                SourceName = "SSHelper"
             });
         }
 
@@ -44,6 +53,75 @@ namespace SuccessStoryFullscreenHelper
             public string Name { get; set; }
             public string CoverImagePath { get; set; }
             public DateTime LatestUnlocked { get; set; }
+        }
+
+        public class GameAchievementsData
+        {
+            public string Name { get; set; }
+            public string CoverImagePath { get; set; }
+            public int GS15Count { get; set; }
+            public int GS30Count { get; set; }
+            public int GS90Count { get; set; }
+            public int Progress { get; set; }  // 0-100 %
+            public bool IsPlatinum { get; set; }
+            public DateTime LastUnlockDate { get; set; }
+        }
+
+        private Window AchievementsWindow;
+        public void ShowAchievementsWindow(IPlayniteAPI api)
+        {
+            var parent = api.Dialogs.GetCurrentAppWindow();
+            AchievementsWindow = api.Dialogs.CreateWindow(new WindowCreationOptions
+            {
+                ShowMinimizeButton = false,
+                
+            });
+
+            AchievementsWindow.Owner = parent; 
+
+            AchievementsWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
+            AchievementsWindow.Title = "Achievements";
+
+            AchievementsWindow.Height = parent.Height;
+            AchievementsWindow.Width = parent.Width;
+
+            string xamlString = @"
+            <Viewbox Stretch=""Uniform"" 
+                     xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+                     xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+                     xmlns:pbeh=""clr-namespace:Playnite.Behaviors;assembly=Playnite"">
+                <Grid Width=""1920"" Height=""1080"">
+                    <ContentControl x:Name=""AchievementsWindow""
+                                    Focusable=""False""
+                                    Style=""{DynamicResource AchievementsWindowStyle}"" />
+                </Grid>
+            </Viewbox>";
+
+            var content = (System.Windows.FrameworkElement)System.Windows.Markup.XamlReader.Parse(xamlString);
+
+            AchievementsWindow.PreviewKeyDown += (s, e) =>
+            {
+                if (e.Key == System.Windows.Input.Key.Escape)
+                {
+                    AchievementsWindow.Close();
+                    e.Handled = true;
+                }
+            };
+
+            AchievementsWindow.Content = content;
+            AchievementsWindow.ShowDialog();
+
+        }
+
+        public override void OnControllerButtonStateChanged(OnControllerButtonStateChangedArgs args)
+        {
+            if (args.Button == ControllerInput.B && args.State == ControllerInputState.Pressed)
+            {
+                if (AchievementsWindow != null && AchievementsWindow.IsVisible)
+                {
+                    AchievementsWindow.Close();
+                }
+            }
         }
 
         public override void OnGameInstalled(OnGameInstalledEventArgs args)
@@ -93,6 +171,7 @@ namespace SuccessStoryFullscreenHelper
             int gsPlat = 0;
             int fileCount = 0;
             var platinumGamesList = new List<PlatinumGame>();
+            var allGamesWithAchievements = new List<GameAchievementsData>();
 
 
             foreach (var file in Directory.EnumerateFiles(dataPath, "*.json", SearchOption.TopDirectoryOnly))
@@ -222,6 +301,86 @@ namespace SuccessStoryFullscreenHelper
                             }
                         }
                     }
+                    if (json.Items != null && json.Items.Count > 0)
+                    {
+                        int gameGS15 = 0;
+                        int gameGS30 = 0;
+                        int gameGS90 = 0;
+                        int unlockedCount = 0;
+                        int totalCount = json.Items.Count;
+                        DateTime latestUnlockDate = DateTime.MinValue;
+
+                        string platformName = json.SourcesLink?.Name?.ToString() ?? "";
+
+                        foreach (var item in json.Items)
+                        {
+                            bool unlocked = item["DateUnlocked"] != null &&
+                                            !item["DateUnlocked"].ToString().StartsWith("0001-01-01");
+
+                            if (unlocked)
+                            {
+                                unlockedCount++;
+
+                                if (DateTime.TryParse(item["DateUnlocked"].ToString(), out DateTime unlockedDate))
+                                {
+                                    if (unlockedDate > latestUnlockDate)
+                                        latestUnlockDate = unlockedDate;
+                                }
+
+                                double score = 0;
+                                try
+                                {
+                                    score = (double)item["GamerScore"];
+                                }
+                                catch { /* ignorovat */ }
+
+                                if (platformName == "RetroAchievements")
+                                {
+                                    // Speciální pravidla pro RetroAchievements
+                                    if (score >= 1 && score <= 9) gameGS15++;
+                                    else if (score >= 10 && score <= 19) gameGS30++;
+                                    else if (score >= 20 && score <= 25) gameGS90++;
+                                }
+                                else
+                                {
+                                    if (score == 15.0) gameGS15++;
+                                    else if (score == 30.0) gameGS30++;
+                                    else if (score == 90.0 || score == 180.0) gameGS90++;
+                                }
+                            }
+                        }
+
+                        int progressPercent = totalCount > 0 ? (int)(100.0 * unlockedCount / totalCount) : 0;
+                        bool isPlatinum = progressPercent == 100;
+
+                        string gameName = json["Name"]?.ToString() ?? "Unknown Game";
+
+                        var matchedGame = PlayniteApi.Database.Games.FirstOrDefault(g => g.Name == gameName);
+                        string coverPath = null;
+                        if (matchedGame != null && !string.IsNullOrEmpty(matchedGame.CoverImage))
+                        {
+                            try
+                            {
+                                coverPath = PlayniteApi.Database.GetFullFilePath(matchedGame.CoverImage);
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.Warn($"Failed to get cover image for {gameName}: {ex.Message}");
+                            }
+                        }
+
+                        allGamesWithAchievements.Add(new GameAchievementsData
+                        {
+                            Name = gameName,
+                            CoverImagePath = coverPath,
+                            GS15Count = gameGS15,
+                            GS30Count = gameGS30,
+                            GS90Count = gameGS90,
+                            Progress = progressPercent,
+                            IsPlatinum = isPlatinum,
+                            LastUnlockDate = latestUnlockDate
+                        });
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -302,6 +461,9 @@ namespace SuccessStoryFullscreenHelper
             settings.Settings.GSRank = rank.ToString();
             settings.Settings.PlatinumGames = platinumGamesList;
             settings.Settings.PlatinumGamesAscending = platinumGamesListAscending;
+            settings.Settings.AllGamesWithAchievements = allGamesWithAchievements
+            .OrderByDescending(g => g.LastUnlockDate)
+            .ToList();
 
             logger.Info($"SuccessStory stats loaded from {fileCount} files. Bronze: {gs15}, Silver: {gs30}, Gold: {gs90}, Platinum: {gsPlat}, Total: {total}");
             
@@ -328,6 +490,15 @@ namespace SuccessStoryFullscreenHelper
         public override UserControl GetSettingsView(bool firstRunSettings)
         {
             return new SuccessStoryFullscreenHelperSettingsView();
+        }
+        public override Control GetGameViewControl(GetGameViewControlArgs args)
+        {
+            if (args.Name == "TopBarView")
+            {
+                return new TopBarView(settings);
+            }
+
+            return null;
         }
     }
 }

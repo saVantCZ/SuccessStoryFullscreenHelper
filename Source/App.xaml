@@ -3,8 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Application.Resources>
         <ResourceDictionary>
+            <BitmapImage x:Key="Platinum" UriSource="pack://application:,,,/SuccessStoryFullscreenHelper;component/Images/Platinum.png" />
+            <BitmapImage x:Key="Gold" UriSource="pack://application:,,,/SuccessStoryFullscreenHelper;component/Images/Gold.png" />
+            <BitmapImage x:Key="Silver" UriSource="pack://application:,,,/SuccessStoryFullscreenHelper;component/Images/Silver.png" />
+            <BitmapImage x:Key="Bronze" UriSource="pack://application:,,,/SuccessStoryFullscreenHelper;component/Images/Bronze.png" />
             <Style x:Key="BaseTextBlockStyle" TargetType="TextBlock" />
-            <ResourceDictionary.MergedDictionaries>                
+            <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Localization/en_US.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
