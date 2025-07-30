@@ -64,6 +64,9 @@ pbeh:FocusBahaviors.OnVisibilityFocus="True"
 
 Achievements Windows Default Style (Theme Makers can customize it)
 
+<img width="500" height="281" alt="image" src="https://github.com/user-attachments/assets/aa1f078d-9f7c-4ef5-a6a7-18ddc7a553f8" />
+
+
 ```xml
 <Style x:Key="AchievementsWindowStyle" TargetType="ContentControl">
     <Setter Property="Template">
