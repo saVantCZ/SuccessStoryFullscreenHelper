@@ -242,6 +242,11 @@ Achievements Windows Default Style (Theme Makers can customize it)
 
 ```
 
+Wrap your ListViewItem to ButtonEx with this command to open new Window with GameAchievementsWindowStyle, where you can add per game achievement layout providet by SuccessStory
+```
+<ButtonEx Command="{Binding OpenAchievementWindow}">
+```
+
 | AllGamesWithAchievements Bindings         | Description                                                                 |
 |------------------|-----------------------------------------------------------------------------|
 | `Name`           | Shows Name of Game |
