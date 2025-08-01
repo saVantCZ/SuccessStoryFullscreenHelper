@@ -22,7 +22,7 @@ namespace SuccessStoryFullscreenHelper
         private static readonly ILogger logger = LogManager.GetLogger();
 
         public static SuccessStoryFullscreenHelper Instance { get; private set; }
-        public SuccessStoryFullscreenHelperSettingsViewModel settings { get; set; }
+        public static SuccessStoryFullscreenHelperSettingsViewModel settings { get; set; }
 
         public override Guid Id { get; } = Guid.Parse("fd098238-28e4-42a8-a313-712dc2834237");
 
@@ -57,7 +57,9 @@ namespace SuccessStoryFullscreenHelper
 
         public class GameAchievementsData
         {
+            public ICommand OpenAchievementWindow { get; set; }
             public string Name { get; set; }
+            public Guid GameId { get; set; }
             public string CoverImagePath { get; set; }
             public int GS15Count { get; set; }
             public int GS30Count { get; set; }
@@ -68,14 +70,19 @@ namespace SuccessStoryFullscreenHelper
         }
 
         private Window AchievementsWindow;
-        public void ShowAchievementsWindow(IPlayniteAPI api)
+        public void ShowAchievementsWindow(IPlayniteAPI api, string styleName = "AchievementsWindowStyle")
         {
-            var parent = api.Dialogs.GetCurrentAppWindow();
+            if (AchievementsWindow != null && AchievementsWindow.IsVisible)
+            {
+                AchievementsWindow.Close(); // close old window before opening new one
+            }
             AchievementsWindow = api.Dialogs.CreateWindow(new WindowCreationOptions
             {
                 ShowMinimizeButton = false,
                 
             });
+
+            var parent = api.Dialogs.GetCurrentAppWindow();
 
             AchievementsWindow.Owner = parent; 
 
@@ -85,7 +92,7 @@ namespace SuccessStoryFullscreenHelper
             AchievementsWindow.Height = parent.Height;
             AchievementsWindow.Width = parent.Width;
 
-            string xamlString = @"
+            string xamlString = $@"
             <Viewbox Stretch=""Uniform"" 
                      xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
                      xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
@@ -93,7 +100,7 @@ namespace SuccessStoryFullscreenHelper
                 <Grid Width=""1920"" Height=""1080"">
                     <ContentControl x:Name=""AchievementsWindow""
                                     Focusable=""False""
-                                    Style=""{DynamicResource AchievementsWindowStyle}"" />
+                                    Style=""{{DynamicResource {styleName}}}"" />
                 </Grid>
             </Viewbox>";
 
@@ -369,16 +376,24 @@ namespace SuccessStoryFullscreenHelper
                             }
                         }
 
+                        var gameGuid = new Guid(Path.GetFileNameWithoutExtension(file));
+
                         allGamesWithAchievements.Add(new GameAchievementsData
                         {
                             Name = gameName,
+                            GameId = gameGuid,
                             CoverImagePath = coverPath,
                             GS15Count = gameGS15,
                             GS30Count = gameGS30,
                             GS90Count = gameGS90,
                             Progress = progressPercent,
                             IsPlatinum = isPlatinum,
-                            LastUnlockDate = latestUnlockDate
+                            LastUnlockDate = latestUnlockDate,
+                            OpenAchievementWindow = new RelayCommand(() =>
+                            {
+                                PlayniteApi.MainView.SelectGame(gameGuid);
+                                ShowAchievementsWindow(PlayniteApi, "GameAchievementsWindowStyle");
+                            })
                         });
                     }
                 }

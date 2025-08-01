@@ -9,6 +9,20 @@ using static SuccessStoryFullscreenHelper.SuccessStoryFullscreenHelper;
 
 namespace SuccessStoryFullscreenHelper
 {
+    public class GameAchievementCollection
+    {
+        private SuccessStoryFullscreenHelperSettings instance;
+        public GameAchievementCollection(SuccessStoryFullscreenHelperSettings settingsInstance)
+        {
+            instance = settingsInstance ?? throw new ArgumentNullException(nameof(settingsInstance));
+        }
+
+        public GameAchievementsData this[Guid gameId]
+        {
+            get => instance.AllGamesWithAchievements.Where(g => g.GameId == gameId).FirstOrDefault();
+        }
+    }
+
     public class SuccessStoryFullscreenHelperSettings : ObservableObject
     {
         private string gs15 = "0";
@@ -20,6 +34,12 @@ namespace SuccessStoryFullscreenHelper
         private string gsLevel = "0";
         private string gsLevelProgress = "0";
         private string gsRank = "Bronze1";
+        private GameAchievementCollection gameAchievements;
+
+        public SuccessStoryFullscreenHelperSettings()
+        {
+            gameAchievements = new GameAchievementCollection(this);
+        }
 
         private List<PlatinumGame> _platinumGames = new List<PlatinumGame>();
         public List<PlatinumGame> PlatinumGames
@@ -49,6 +69,24 @@ namespace SuccessStoryFullscreenHelper
                 SuccessStoryFullscreenHelper.Instance.ShowAchievementsWindow(SuccessStoryFullscreenHelper.Instance.PlayniteApi);
             }
         });
+
+        public RelayCommand OpenGameAchievementWindow => new RelayCommand(() =>
+        {
+            if (SuccessStoryFullscreenHelper.Instance != null)
+            {
+                SuccessStoryFullscreenHelper.Instance.ShowAchievementsWindow(SuccessStoryFullscreenHelper.Instance.PlayniteApi, "GameAchievementsWindowStyle");
+            }
+        });
+
+        public GameAchievementsData GameAchievements
+        {
+            get => gameAchievements[SuccessStoryFullscreenHelper.Instance.PlayniteApi.MainView.SelectedGames.First().Id];
+        }
+
+        public GameAchievementsData GetGameAchievements(Guid gameId)
+        {
+            return gameAchievements[gameId];
+        }
 
         public string GS15 { get => gs15; set => SetValue(ref gs15, value); }
         public string GS30 { get => gs30; set => SetValue(ref gs30, value); }
