@@ -41,6 +41,7 @@ Binding via {PluginSettings Plugin=SSHelper, Path=XXX}
 | PlatinumGames Bindings         | Description                                                                 |
 |------------------|-----------------------------------------------------------------------------|
 | `Name`           | Shows Name of Platinum Game |
+| `Platform`           | Shows first Platform            |
 | `CoverImagePath`           | Shows its Cover Image              |
 | `LatestUnlocked`           | Shows Date when Unlocked                 |
 
@@ -250,6 +251,7 @@ Wrap your ListViewItem to ButtonEx with this command to open new Window with Gam
 | AllGamesWithAchievements Bindings         | Description                                                                 |
 |------------------|-----------------------------------------------------------------------------|
 | `Name`           | Shows Name of Game |
+| `Platform`           | Shows its first Platform              |
 | `CoverImagePath`           | Shows its Cover Image              |
 | `GS15Count`           | Count of Bronze Achievements               |
 | `GS30Count`           | Count of Silver Achievements               |
