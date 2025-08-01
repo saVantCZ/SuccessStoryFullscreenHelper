@@ -22,7 +22,7 @@ namespace SuccessStoryFullscreenHelper
         private static readonly ILogger logger = LogManager.GetLogger();
 
         public static SuccessStoryFullscreenHelper Instance { get; private set; }
-        public SuccessStoryFullscreenHelperSettingsViewModel settings { get; set; }
+        public static SuccessStoryFullscreenHelperSettingsViewModel settings { get; set; }
 
         public override Guid Id { get; } = Guid.Parse("fd098238-28e4-42a8-a313-712dc2834237");
 
@@ -51,31 +51,40 @@ namespace SuccessStoryFullscreenHelper
         public class PlatinumGame
         {
             public string Name { get; set; }
+            public Guid GameId { get; set; }
             public string CoverImagePath { get; set; }
             public DateTime LatestUnlocked { get; set; }
+            public ICommand OpenAchievementWindow { get; set; }
         }
 
         public class GameAchievementsData
         {
+            public ICommand OpenAchievementWindow { get; set; }
             public string Name { get; set; }
+            public Guid GameId { get; set; }
             public string CoverImagePath { get; set; }
             public int GS15Count { get; set; }
             public int GS30Count { get; set; }
             public int GS90Count { get; set; }
-            public int Progress { get; set; }  // 0-100 %
+            public int Progress { get; set; }
             public bool IsPlatinum { get; set; }
             public DateTime LastUnlockDate { get; set; }
         }
 
         private Window AchievementsWindow;
-        public void ShowAchievementsWindow(IPlayniteAPI api)
+        public void ShowAchievementsWindow(IPlayniteAPI api, string styleName = "AchievementsWindowStyle")
         {
-            var parent = api.Dialogs.GetCurrentAppWindow();
+            if (AchievementsWindow != null && AchievementsWindow.IsVisible)
+            {
+                AchievementsWindow.Close(); // close old window before opening new one
+            }
             AchievementsWindow = api.Dialogs.CreateWindow(new WindowCreationOptions
             {
                 ShowMinimizeButton = false,
                 
             });
+
+            var parent = api.Dialogs.GetCurrentAppWindow();
 
             AchievementsWindow.Owner = parent; 
 
@@ -85,7 +94,7 @@ namespace SuccessStoryFullscreenHelper
             AchievementsWindow.Height = parent.Height;
             AchievementsWindow.Width = parent.Width;
 
-            string xamlString = @"
+            string xamlString = $@"
             <Viewbox Stretch=""Uniform"" 
                      xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
                      xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
@@ -93,7 +102,7 @@ namespace SuccessStoryFullscreenHelper
                 <Grid Width=""1920"" Height=""1080"">
                     <ContentControl x:Name=""AchievementsWindow""
                                     Focusable=""False""
-                                    Style=""{DynamicResource AchievementsWindowStyle}"" />
+                                    Style=""{{DynamicResource {styleName}}}"" />
                 </Grid>
             </Viewbox>";
 
@@ -235,11 +244,19 @@ namespace SuccessStoryFullscreenHelper
                                     }
                                 }
 
+                                var gameGuid = new Guid(Path.GetFileNameWithoutExtension(file));
+
                                 platinumGamesList.Add(new PlatinumGame
                                 {
                                     Name = gameName,
+                                    GameId = gameGuid,
                                     CoverImagePath = coverPath,
-                                    LatestUnlocked = latestUnlocked
+                                    LatestUnlocked = latestUnlocked,
+                                    OpenAchievementWindow = new RelayCommand(() =>
+                                    {
+                                        PlayniteApi.MainView.SelectGame(gameGuid);
+                                        ShowAchievementsWindow(PlayniteApi, "GameAchievementsWindowStyle");
+                                    })
                                 });
                             }
                             else
@@ -255,14 +272,6 @@ namespace SuccessStoryFullscreenHelper
                             "RetroAchievements"
                         };
 
-                        var standardPlatforms = new HashSet<string>
-                        {
-                            "Steam",
-                            "Exophase",
-                            "Xbox",
-                            "GOG",
-                            "Epic"
-                        };
 
                         foreach (var item in json.Items)
                         {
@@ -271,22 +280,14 @@ namespace SuccessStoryFullscreenHelper
                             {
                                 double score = (double)item["GamerScore"];
 
+                                // Speciální pravidla pro RetroAchievements
                                 if (retroPlatforms.Contains(platformName))
                                 {
                                     if (score >= 1 && score <= 9)
                                         gs15++;
                                     else if (score >= 10 && score <= 19)
                                         gs30++;
-                                    else if (score >= 20 && score <= 25)
-                                        gs90++;
-                                }
-                                else if (standardPlatforms.Contains(platformName))
-                                {
-                                    if (score == 15.0)
-                                        gs15++;
-                                    else if (score == 30.0)
-                                        gs30++;
-                                    else if (score == 90.0 || score == 180.0)
+                                    else if (score >= 20 && score <= 50)
                                         gs90++;
                                 }
                                 else
@@ -312,6 +313,11 @@ namespace SuccessStoryFullscreenHelper
 
                         string platformName = json.SourcesLink?.Name?.ToString() ?? "";
 
+                        var retroPlatforms = new HashSet<string>
+                        {
+                            "RetroAchievements"
+                        };
+
                         foreach (var item in json.Items)
                         {
                             bool unlocked = item["DateUnlocked"] != null &&
@@ -334,18 +340,24 @@ namespace SuccessStoryFullscreenHelper
                                 }
                                 catch { /* ignorovat */ }
 
-                                if (platformName == "RetroAchievements")
+                                if (retroPlatforms.Contains(platformName))
                                 {
                                     // Speciální pravidla pro RetroAchievements
-                                    if (score >= 1 && score <= 9) gameGS15++;
-                                    else if (score >= 10 && score <= 19) gameGS30++;
-                                    else if (score >= 20 && score <= 25) gameGS90++;
+                                    if (score >= 1 && score <= 9) 
+                                        gameGS15++;
+                                    else if (score >= 10 && score <= 19) 
+                                        gameGS30++;
+                                    else if (score >= 20 && score <= 50) 
+                                        gameGS90++;
                                 }
                                 else
                                 {
-                                    if (score == 15.0) gameGS15++;
-                                    else if (score == 30.0) gameGS30++;
-                                    else if (score == 90.0 || score == 180.0) gameGS90++;
+                                    if (score == 15.0) 
+                                        gameGS15++;
+                                    else if (score == 30.0) 
+                                        gameGS30++;
+                                    else if (score == 90.0 || score == 180.0) 
+                                        gameGS90++;
                                 }
                             }
                         }
@@ -369,16 +381,24 @@ namespace SuccessStoryFullscreenHelper
                             }
                         }
 
+                        var gameGuid = new Guid(Path.GetFileNameWithoutExtension(file));
+
                         allGamesWithAchievements.Add(new GameAchievementsData
                         {
                             Name = gameName,
+                            GameId = gameGuid,
                             CoverImagePath = coverPath,
                             GS15Count = gameGS15,
                             GS30Count = gameGS30,
                             GS90Count = gameGS90,
                             Progress = progressPercent,
                             IsPlatinum = isPlatinum,
-                            LastUnlockDate = latestUnlockDate
+                            LastUnlockDate = latestUnlockDate,
+                            OpenAchievementWindow = new RelayCommand(() =>
+                            {
+                                PlayniteApi.MainView.SelectGame(gameGuid);
+                                ShowAchievementsWindow(PlayniteApi, "GameAchievementsWindowStyle");
+                            })
                         });
                     }
                 }
