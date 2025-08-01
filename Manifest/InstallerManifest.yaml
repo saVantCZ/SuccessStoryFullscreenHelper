@@ -48,7 +48,7 @@ Packages:
     ReleaseDate: 2025-08-01
     PackageUrl: https://github.com/saVantCZ/SuccessStoryFullscreenHelper/releases/download/0.1.0/SuccessStoryFullscreenHelper_0_1_0.pext
     Changelog:
-      - 'Added Custom Window for per-game Achievements, style set by "GameAchievementsWindowStyle"'
+      - 'Added Custom Window for per-game Achievements, style set by "GameAchievementsWindowStyle" (Thanks Jono)'
       - 'Added Command to open this windows within all ListView (Create ButtonEx within Item style)'
       - 'Small clean up'
       - 'Fixed Retroachievements GamerScore not counting score 50 to rare'
