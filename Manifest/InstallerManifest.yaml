@@ -43,3 +43,12 @@ Packages:
       - 'Added Custom Window which can be opened with a Button to show basic Total and Per-game Achievements stats'
       - 'Added <List>AllGamesWithAchievements to show Games with Achievements and its Stats'
       - 'Detailed info on how to implement in theme on my GitHub README'
+  - Version: 0.1.0
+    RequiredApiVersion: 6.12.0
+    ReleaseDate: 2025-08-01
+    PackageUrl: https://github.com/saVantCZ/SuccessStoryFullscreenHelper/releases/download/0.1.0/SuccessStoryFullscreenHelper_0_1_0.pext
+    Changelog:
+      - 'Added Custom Window for per-game Achievements, style set by "GameAchievementsWindowStyle"'
+      - 'Added Command to open this windows within all ListView (Create ButtonEx within Item style)'
+      - 'Small clean up'
+      - 'Fixed Retroachievements GamerScore not counting score 50 to rare'
