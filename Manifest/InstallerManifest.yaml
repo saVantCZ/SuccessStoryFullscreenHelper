@@ -58,3 +58,10 @@ Packages:
     PackageUrl: https://github.com/saVantCZ/SuccessStoryFullscreenHelper/releases/download/0.1.1/SuccessStoryFullscreenHelper_0_1_1.pext
     Changelog:
       - 'Forgot to add "Platform" to all lists, so if you own same game on different platform, you can show it'
+  - Version: 0.1.2
+    RequiredApiVersion: 6.12.0
+    ReleaseDate: 2025-08-02
+    PackageUrl: https://github.com/saVantCZ/SuccessStoryFullscreenHelper/releases/download/0.1.2/SuccessStoryFullscreenHelper_0_1_2.pext
+    Changelog:
+      - 'Fixed Platform, instead of match Game Name it now matches with Game ID'
+      - 'Added missing DataContext'
